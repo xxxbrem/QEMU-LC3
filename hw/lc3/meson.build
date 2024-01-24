@@ -1,6 +1,6 @@
-avr_ss = ss.source_set()
-avr_ss.add(files('boot.c'))
-avr_ss.add(when: 'CONFIG_AVR_ATMEGA_MCU', if_true: files('atmega.c'))
-avr_ss.add(when: 'CONFIG_ARDUINO', if_true: files('arduino.c'))
+lc3_ss = ss.source_set()
+lc3_ss.add(files('boot.c'))
+lc3_ss.add(when: 'CONFIG_LC3_ATMEGA_MCU', if_true: files('atmega.c'))
+lc3_ss.add(when: 'CONFIG_MYLC3', if_true: files('arduino.c'))
 
-hw_arch += {'avr': avr_ss}
+hw_arch += {'lc3': lc3_ss}
