@@ -51,9 +51,9 @@ struct LC3McuClass {
     /*< public >*/
     const char *uc_name;
     const char *cpu_type;
-    size_t flash_size;
+    size_t memory_size;
     size_t eeprom_size;
-    size_t sram_size;
+    size_t cpu_ram_size;
     size_t io_size;
     size_t gpio_count;
     size_t adc_count;
@@ -214,14 +214,14 @@ static void lc3_realize(DeviceState *dev, Error **errp)
     // cpudev = DEVICE(&s->cpu);
 
     /* SRAM */
-    memory_region_init_ram(&s->sram, OBJECT(dev), "sram", mc->sram_size,
+    memory_region_init_ram(&s->cpu_ram, OBJECT(dev), "cpu_ram", mc->cpu_ram_size,
                            &error_abort);
-    memory_region_add_subregion(get_system_memory(), 0, &s->sram);
+    memory_region_add_subregion(get_system_memory(), 0x6000, &s->cpu_ram);
 
     /* Flash */
-    memory_region_init_rom(&s->flash, OBJECT(dev),
-                           "flash", mc->flash_size, &error_fatal);
-    memory_region_add_subregion(get_system_memory(), 0x6000, &s->flash);
+    memory_region_init_rom(&s->memory, OBJECT(dev),
+                           "memory", mc->memory_size, &error_fatal);
+    memory_region_add_subregion(get_system_memory(), 106496 - 0x6000, &s->memory);
 }
 
 static Property lc3_props[] = {
@@ -245,9 +245,9 @@ static void lc32560_class_init(ObjectClass *oc, void *data)
     LC3McuClass *amc = LC3_MCU_CLASS(oc);
 
     amc->cpu_type = LC3_CPU_TYPE_NAME("lc3");
-    amc->flash_size = 256 * KiB;
+    amc->memory_size = 256 * KiB;
     amc->eeprom_size = 4 * KiB;
-    amc->sram_size = 8 * KiB;
+    amc->cpu_ram_size = 8 * KiB;
     amc->io_size = 512;
     amc->gpio_count = 54;
     amc->adc_count = 16;

@@ -50,7 +50,7 @@ static void mylc3_init(MachineState *machine)
 
     if (machine->firmware) {
         if (!lc3_load_firmware(&ams->mcu.cpu, machine,
-                               &ams->mcu.flash, machine->firmware)) {
+                               &ams->mcu.memory, machine->firmware)) {
             exit(1);
         }
     }

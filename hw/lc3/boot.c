@@ -23,9 +23,12 @@ uint16_t swap16(uint16_t x)
     return (x << 8) | (x >> 8);
 }
 
-void read_image_file(FILE* file)
+bool lc3_load_firmware(LC3CPU *cpu, MachineState *ms,
+                       MemoryRegion *program_mr, const char *firmware)
 {
-    /* the origin tells us where in memory to place the image */
+    FILE* file = fopen(firmware, "rb");
+    if (!file) { return 0; };
+        /* the origin tells us where in memory to place the image */
     uint16_t origin;
     fread(&origin, sizeof(origin), 1, file);
     origin = swap16(origin);
@@ -41,14 +44,12 @@ void read_image_file(FILE* file)
         *p = swap16(*p);
         ++p;
     }
-}
-
-bool lc3_load_firmware(LC3CPU *cpu, MachineState *ms,
-                       MemoryRegion *program_mr, const char *firmware)
-{
-    FILE* file = fopen(firmware, "rb");
-    if (!file) { return 0; };
-    read_image_file(file);
     fclose(file);
+
+    address_space_write(&address_space_memory, 0, MEMTXATTRS_UNSPECIFIED, memory, sizeof(memory));
+    uint16_t a = 1;
+    address_space_read(&address_space_memory, 0x3000*2, MEMTXATTRS_UNSPECIFIED, &a, 2);
+    printf("%hu\n", a);
+
     return true;
 }

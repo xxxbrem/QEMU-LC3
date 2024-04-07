@@ -38,9 +38,9 @@ struct LC3MCUState {
     /*< public >*/
 
     LC3CPU cpu;
-    MemoryRegion flash;
+    MemoryRegion memory;
     MemoryRegion eeprom;
-    MemoryRegion sram;
+    MemoryRegion cpu_ram;
     DeviceState *io;
     AVRMaskState pwr[POWER_MAX];
     AVRUsartState usart[USART_MAX];

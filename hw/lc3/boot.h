@@ -30,6 +30,6 @@
  */
 bool lc3_load_firmware(LC3CPU *cpu, MachineState *ms,
                        MemoryRegion *mr, const char *firmware);
-void read_image_file(FILE* file);
+// void read_image_file(FILE* file);
 uint16_t swap16(uint16_t x);
 #endif
