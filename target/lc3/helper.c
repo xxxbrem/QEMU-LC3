@@ -1,5 +1,5 @@
 /*
- * QEMU AVR CPU helpers
+ * QEMU LC3 CPU helpers
  *
  * Copyright (c) 2016-2020 Michael Rolnik
  *
@@ -27,10 +27,10 @@
 #include "exec/address-spaces.h"
 #include "exec/helper-proto.h"
 
-bool avr_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
+bool lc3_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
 {
-    AVRCPU *cpu = AVR_CPU(cs);
-    CPUAVRState *env = &cpu->env;
+    LC3CPU *cpu = LC3_CPU(cs);
+    CPULC3State *env = &cpu->env;
 
     /*
      * We cannot separate a skip from the next instruction,
@@ -44,7 +44,7 @@ bool avr_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
     if (interrupt_request & CPU_INTERRUPT_RESET) {
         if (cpu_interrupts_enabled(env)) {
             cs->exception_index = EXCP_RESET;
-            avr_cpu_do_interrupt(cs);
+            lc3_cpu_do_interrupt(cs);
 
             cs->interrupt_request &= ~CPU_INTERRUPT_RESET;
             return true;
@@ -54,7 +54,7 @@ bool avr_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
         if (cpu_interrupts_enabled(env) && env->intsrc != 0) {
             int index = ctz64(env->intsrc);
             cs->exception_index = EXCP_INT(index);
-            avr_cpu_do_interrupt(cs);
+            lc3_cpu_do_interrupt(cs);
 
             env->intsrc &= env->intsrc - 1; /* clear the interrupt */
             if (!env->intsrc) {
@@ -66,45 +66,45 @@ bool avr_cpu_exec_interrupt(CPUState *cs, int interrupt_request)
     return false;
 }
 
-void avr_cpu_do_interrupt(CPUState *cs)
+void lc3_cpu_do_interrupt(CPUState *cs)
 {
-    AVRCPU *cpu = AVR_CPU(cs);
-    CPUAVRState *env = &cpu->env;
+    // LC3CPU *cpu = LC3_CPU(cs);
+    // CPULC3State *env = &cpu->env;
 
-    uint32_t ret = env->pc_w;
-    int vector = 0;
-    int size = avr_feature(env, AVR_FEATURE_JMP_CALL) ? 2 : 1;
-    int base = 0;
+    // uint32_t ret = env->pc_w;
+    // int vector = 0;
+    // int size = lc3_feature(env, LC3_FEATURE_JMP_CALL) ? 2 : 1;
+    // int base = 0;
 
-    if (cs->exception_index == EXCP_RESET) {
-        vector = 0;
-    } else if (env->intsrc != 0) {
-        vector = ctz64(env->intsrc) + 1;
-    }
+    // if (cs->exception_index == EXCP_RESET) {
+    //     vector = 0;
+    // } else if (env->intsrc != 0) {
+    //     vector = ctz64(env->intsrc) + 1;
+    // }
 
-    if (avr_feature(env, AVR_FEATURE_3_BYTE_PC)) {
-        cpu_stb_data(env, env->sp--, (ret & 0x0000ff));
-        cpu_stb_data(env, env->sp--, (ret & 0x00ff00) >> 8);
-        cpu_stb_data(env, env->sp--, (ret & 0xff0000) >> 16);
-    } else if (avr_feature(env, AVR_FEATURE_2_BYTE_PC)) {
-        cpu_stb_data(env, env->sp--, (ret & 0x0000ff));
-        cpu_stb_data(env, env->sp--, (ret & 0x00ff00) >> 8);
-    } else {
-        cpu_stb_data(env, env->sp--, (ret & 0x0000ff));
-    }
+    // if (lc3_feature(env, LC3_FEATURE_3_BYTE_PC)) {
+    //     cpu_stb_data(env, env->sp--, (ret & 0x0000ff));
+    //     cpu_stb_data(env, env->sp--, (ret & 0x00ff00) >> 8);
+    //     cpu_stb_data(env, env->sp--, (ret & 0xff0000) >> 16);
+    // } else if (lc3_feature(env, LC3_FEATURE_2_BYTE_PC)) {
+    //     cpu_stb_data(env, env->sp--, (ret & 0x0000ff));
+    //     cpu_stb_data(env, env->sp--, (ret & 0x00ff00) >> 8);
+    // } else {
+    //     cpu_stb_data(env, env->sp--, (ret & 0x0000ff));
+    // }
 
-    env->pc_w = base + vector * size;
-    env->sregI = 0; /* clear Global Interrupt Flag */
+    // env->pc_w = base + vector * size;
+    // env->sregI = 0; /* clear Global Interrupt Flag */
 
-    cs->exception_index = -1;
+    // cs->exception_index = -1;
 }
 
-hwaddr avr_cpu_get_phys_page_debug(CPUState *cs, vaddr addr)
+hwaddr lc3_cpu_get_phys_page_debug(CPUState *cs, vaddr addr)
 {
     return addr; /* I assume 1:1 address correspondence */
 }
 
-bool avr_cpu_tlb_fill(CPUState *cs, vaddr address, int size,
+bool lc3_cpu_tlb_fill(CPUState *cs, vaddr address, int size,
                       MMUAccessType access_type, int mmu_idx,
                       bool probe, uintptr_t retaddr)
 {
@@ -143,8 +143,8 @@ bool avr_cpu_tlb_fill(CPUState *cs, vaddr address, int size,
             if (probe) {
                 page_size = 1;
             } else {
-                AVRCPU *cpu = AVR_CPU(cs);
-                CPUAVRState *env = &cpu->env;
+                LC3CPU *cpu = LC3_CPU(cs);
+                CPULC3State *env = &cpu->env;
                 env->fullacc = 1;
                 cpu_loop_exit_restore(cs, retaddr);
             }
@@ -159,7 +159,7 @@ bool avr_cpu_tlb_fill(CPUState *cs, vaddr address, int size,
  *  helpers
  */
 
-void helper_sleep(CPUAVRState *env)
+void helper_sleep(CPULC3State *env)
 {
     CPUState *cs = env_cpu(env);
 
@@ -167,7 +167,7 @@ void helper_sleep(CPUAVRState *env)
     cpu_loop_exit(cs);
 }
 
-void helper_unsupported(CPUAVRState *env)
+void helper_unsupported(CPULC3State *env)
 {
     CPUState *cs = env_cpu(env);
 
@@ -183,7 +183,7 @@ void helper_unsupported(CPUAVRState *env)
     cpu_loop_exit(cs);
 }
 
-void helper_debug(CPUAVRState *env)
+void helper_debug(CPULC3State *env)
 {
     CPUState *cs = env_cpu(env);
 
@@ -191,7 +191,7 @@ void helper_debug(CPUAVRState *env)
     cpu_loop_exit(cs);
 }
 
-void helper_break(CPUAVRState *env)
+void helper_break(CPULC3State *env)
 {
     CPUState *cs = env_cpu(env);
 
@@ -199,7 +199,7 @@ void helper_break(CPUAVRState *env)
     cpu_loop_exit(cs);
 }
 
-void helper_wdr(CPUAVRState *env)
+void helper_wdr(CPULC3State *env)
 {
     qemu_log_mask(LOG_UNIMP, "WDG reset (not implemented)\n");
 }
@@ -214,41 +214,41 @@ void helper_wdr(CPUAVRState *env)
  * c.  it caches the value for sake of SBI, SBIC, SBIS & CBI implementation
  *
  */
-target_ulong helper_inb(CPUAVRState *env, uint32_t port)
+target_ulong helper_inb(CPULC3State *env, uint32_t port)
 {
     target_ulong data = 0;
 
-    switch (port) {
-    case 0x38: /* RAMPD */
-        data = 0xff & (env->rampD >> 16);
-        break;
-    case 0x39: /* RAMPX */
-        data = 0xff & (env->rampX >> 16);
-        break;
-    case 0x3a: /* RAMPY */
-        data = 0xff & (env->rampY >> 16);
-        break;
-    case 0x3b: /* RAMPZ */
-        data = 0xff & (env->rampZ >> 16);
-        break;
-    case 0x3c: /* EIND */
-        data = 0xff & (env->eind >> 16);
-        break;
-    case 0x3d: /* SPL */
-        data = env->sp & 0x00ff;
-        break;
-    case 0x3e: /* SPH */
-        data = env->sp >> 8;
-        break;
-    case 0x3f: /* SREG */
-        data = cpu_get_sreg(env);
-        break;
-    default:
-        /* not a special register, pass to normal memory access */
-        data = address_space_ldub(&address_space_memory,
-                                  OFFSET_IO_REGISTERS + port,
-                                  MEMTXATTRS_UNSPECIFIED, NULL);
-    }
+    // switch (port) {
+    // case 0x38: /* RAMPD */
+    //     data = 0xff & (env->rampD >> 16);
+    //     break;
+    // case 0x39: /* RAMPX */
+    //     data = 0xff & (env->rampX >> 16);
+    //     break;
+    // case 0x3a: /* RAMPY */
+    //     data = 0xff & (env->rampY >> 16);
+    //     break;
+    // case 0x3b: /* RAMPZ */
+    //     data = 0xff & (env->rampZ >> 16);
+    //     break;
+    // case 0x3c: /* EIND */
+    //     data = 0xff & (env->eind >> 16);
+    //     break;
+    // case 0x3d: /* SPL */
+    //     data = env->sp & 0x00ff;
+    //     break;
+    // case 0x3e: /* SPH */
+    //     data = env->sp >> 8;
+    //     break;
+    // case 0x3f: /* SREG */
+    //     data = cpu_get_sreg(env);
+    //     break;
+    // default:
+    //     /* not a special register, pass to normal memory access */
+    //     data = address_space_ldub(&address_space_memory,
+    //                               OFFSET_IO_REGISTERS + port,
+    //                               MEMTXATTRS_UNSPECIFIED, NULL);
+    // }
 
     return data;
 }
@@ -263,57 +263,57 @@ target_ulong helper_inb(CPUAVRState *env, uint32_t port)
  *  c.  it caches the value for sake of SBI, SBIC, SBIS & CBI implementation
  *
  */
-void helper_outb(CPUAVRState *env, uint32_t port, uint32_t data)
+void helper_outb(CPULC3State *env, uint32_t port, uint32_t data)
 {
     data &= 0x000000ff;
 
-    switch (port) {
-    case 0x38: /* RAMPD */
-        if (avr_feature(env, AVR_FEATURE_RAMPD)) {
-            env->rampD = (data & 0xff) << 16;
-        }
-        break;
-    case 0x39: /* RAMPX */
-        if (avr_feature(env, AVR_FEATURE_RAMPX)) {
-            env->rampX = (data & 0xff) << 16;
-        }
-        break;
-    case 0x3a: /* RAMPY */
-        if (avr_feature(env, AVR_FEATURE_RAMPY)) {
-            env->rampY = (data & 0xff) << 16;
-        }
-        break;
-    case 0x3b: /* RAMPZ */
-        if (avr_feature(env, AVR_FEATURE_RAMPZ)) {
-            env->rampZ = (data & 0xff) << 16;
-        }
-        break;
-    case 0x3c: /* EIDN */
-        env->eind = (data & 0xff) << 16;
-        break;
-    case 0x3d: /* SPL */
-        env->sp = (env->sp & 0xff00) | (data);
-        break;
-    case 0x3e: /* SPH */
-        if (avr_feature(env, AVR_FEATURE_2_BYTE_SP)) {
-            env->sp = (env->sp & 0x00ff) | (data << 8);
-        }
-        break;
-    case 0x3f: /* SREG */
-        cpu_set_sreg(env, data);
-        break;
-    default:
-        /* not a special register, pass to normal memory access */
-        address_space_stb(&address_space_memory, OFFSET_IO_REGISTERS + port,
-                          data, MEMTXATTRS_UNSPECIFIED, NULL);
-    }
+    // switch (port) {
+    // case 0x38: /* RAMPD */
+    //     if (lc3_feature(env, LC3_FEATURE_RAMPD)) {
+    //         env->rampD = (data & 0xff) << 16;
+    //     }
+    //     break;
+    // case 0x39: /* RAMPX */
+    //     if (lc3_feature(env, LC3_FEATURE_RAMPX)) {
+    //         env->rampX = (data & 0xff) << 16;
+    //     }
+    //     break;
+    // case 0x3a: /* RAMPY */
+    //     if (lc3_feature(env, LC3_FEATURE_RAMPY)) {
+    //         env->rampY = (data & 0xff) << 16;
+    //     }
+    //     break;
+    // case 0x3b: /* RAMPZ */
+    //     if (lc3_feature(env, LC3_FEATURE_RAMPZ)) {
+    //         env->rampZ = (data & 0xff) << 16;
+    //     }
+    //     break;
+    // case 0x3c: /* EIDN */
+    //     env->eind = (data & 0xff) << 16;
+    //     break;
+    // case 0x3d: /* SPL */
+    //     env->sp = (env->sp & 0xff00) | (data);
+    //     break;
+    // case 0x3e: /* SPH */
+    //     if (lc3_feature(env, LC3_FEATURE_2_BYTE_SP)) {
+    //         env->sp = (env->sp & 0x00ff) | (data << 8);
+    //     }
+    //     break;
+    // case 0x3f: /* SREG */
+    //     cpu_set_sreg(env, data);
+    //     break;
+    // default:
+    //     /* not a special register, pass to normal memory access */
+    //     address_space_stb(&address_space_memory, OFFSET_IO_REGISTERS + port,
+    //                       data, MEMTXATTRS_UNSPECIFIED, NULL);
+    // }
 }
 
 /*
  *  this function implements LD instruction when there is a possibility to read
  *  from a CPU register
  */
-target_ulong helper_fullrd(CPUAVRState *env, uint32_t addr)
+target_ulong helper_fullrd(CPULC3State *env, uint32_t addr)
 {
     uint8_t data;
 
@@ -337,7 +337,7 @@ target_ulong helper_fullrd(CPUAVRState *env, uint32_t addr)
  *  this function implements ST instruction when there is a possibility to write
  *  into a CPU register
  */
-void helper_fullwr(CPUAVRState *env, uint32_t data, uint32_t addr)
+void helper_fullwr(CPULC3State *env, uint32_t data, uint32_t addr)
 {
     env->fullacc = false;
 

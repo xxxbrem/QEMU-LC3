@@ -18,24 +18,24 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>
  */
 
-#ifndef TARGET_AVR_CPU_QOM_H
-#define TARGET_AVR_CPU_QOM_H
+#ifndef TARGET_LC3_CPU_QOM_H
+#define TARGET_LC3_CPU_QOM_H
 
 #include "hw/core/cpu.h"
 #include "qom/object.h"
 
-#define TYPE_AVR_CPU "avr-cpu"
+#define TYPE_LC3_CPU "lc3-cpu"
 
-OBJECT_DECLARE_CPU_TYPE(AVRCPU, AVRCPUClass, AVR_CPU)
+OBJECT_DECLARE_CPU_TYPE(LC3CPU, LC3CPUClass, LC3_CPU)
 
 /**
- *  AVRCPUClass:
+ *  LC3CPUClass:
  *  @parent_realize: The parent class' realize handler.
  *  @parent_phases: The parent class' reset phase handlers.
  *
  *  A AVR CPU model.
  */
-struct AVRCPUClass {
+struct LC3CPUClass {
     /*< private >*/
     CPUClass parent_class;
     /*< public >*/
@@ -44,4 +44,4 @@ struct AVRCPUClass {
 };
 
 
-#endif /* TARGET_AVR_CPU_QOM_H */
+#endif /* TARGET_LC3_CPU_QOM_H */

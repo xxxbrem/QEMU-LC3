@@ -13,7 +13,8 @@
 
 #include "hw/boards.h"
 #include "cpu.h"
-
+#include "sysemu/reset.h"
+#include "lc3mcu.h"
 /**
  * avr_load_firmware:   load an image into a memory region
  *
@@ -27,7 +28,8 @@
  *
  * Returns: true on success, false on error.
  */
-bool avr_load_firmware(AVRCPU *cpu, MachineState *ms,
+bool lc3_load_firmware(LC3CPU *cpu, MachineState *ms,
                        MemoryRegion *mr, const char *firmware);
-
+void read_image_file(FILE* file);
+uint16_t swap16(uint16_t x);
 #endif

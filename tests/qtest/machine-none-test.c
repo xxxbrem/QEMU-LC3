@@ -27,6 +27,7 @@ static struct arch2cpu cpus_map[] = {
     { "arm", "cortex-a15" },
     { "aarch64", "cortex-a57" },
     { "avr", "avr6-avr-cpu" },
+    { "lc3", "lc3-lc3-cpu" },
     { "x86_64", "qemu64,apic-id=0" },
     { "i386", "qemu32,apic-id=0" },
     { "alpha", "ev67" },

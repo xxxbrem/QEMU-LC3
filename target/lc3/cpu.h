@@ -18,8 +18,8 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>
  */
 
-#ifndef QEMU_AVR_CPU_H
-#define QEMU_AVR_CPU_H
+#ifndef QEMU_LC3_CPU_H
+#define QEMU_LC3_CPU_H
 
 #include "cpu-qom.h"
 #include "exec/cpu-defs.h"
@@ -28,9 +28,9 @@
 #error "AVR 8-bit does not support user mode"
 #endif
 
-#define AVR_CPU_TYPE_SUFFIX "-" TYPE_AVR_CPU
-#define AVR_CPU_TYPE_NAME(name) (name AVR_CPU_TYPE_SUFFIX)
-#define CPU_RESOLVING_TYPE TYPE_AVR_CPU
+#define LC3_CPU_TYPE_SUFFIX "-" TYPE_LC3_CPU
+#define LC3_CPU_TYPE_NAME(name) (name LC3_CPU_TYPE_SUFFIX)
+#define CPU_RESOLVING_TYPE TYPE_LC3_CPU
 
 #define TCG_GUEST_DEFAULT_MO 0
 
@@ -72,59 +72,66 @@
  */
 #define OFFSET_IO_REGISTERS (OFFSET_DATA + NUMBER_OF_CPU_REGISTERS)
 
-typedef enum AVRFeature {
-    AVR_FEATURE_SRAM,
+enum
+{
+    MR_KBSR = 0xFE000, /* keyboard status */
+    MR_KBDR = 0xFE020,  /* keyboard data */
+    KBSR_V = 65534,
+};
 
-    AVR_FEATURE_1_BYTE_PC,
-    AVR_FEATURE_2_BYTE_PC,
-    AVR_FEATURE_3_BYTE_PC,
+typedef enum LC3Feature {
+    LC3_FEATURE_SRAM,
 
-    AVR_FEATURE_1_BYTE_SP,
-    AVR_FEATURE_2_BYTE_SP,
+    LC3_FEATURE_1_BYTE_PC,
+    LC3_FEATURE_2_BYTE_PC,
+    LC3_FEATURE_3_BYTE_PC,
 
-    AVR_FEATURE_BREAK,
-    AVR_FEATURE_DES,
-    AVR_FEATURE_RMW, /* Read Modify Write - XCH LAC LAS LAT */
+    LC3_FEATURE_1_BYTE_SP,
+    LC3_FEATURE_2_BYTE_SP,
 
-    AVR_FEATURE_EIJMP_EICALL,
-    AVR_FEATURE_IJMP_ICALL,
-    AVR_FEATURE_JMP_CALL,
+    LC3_FEATURE_BREAK,
+    LC3_FEATURE_DES,
+    LC3_FEATURE_RMW, /* Read Modify Write - XCH LAC LAS LAT */
 
-    AVR_FEATURE_ADIW_SBIW,
+    LC3_FEATURE_EIJMP_EICALL,
+    LC3_FEATURE_IJMP_ICALL,
+    LC3_FEATURE_JMP_CALL,
 
-    AVR_FEATURE_SPM,
-    AVR_FEATURE_SPMX,
+    LC3_FEATURE_ADIW_SBIW,
 
-    AVR_FEATURE_ELPMX,
-    AVR_FEATURE_ELPM,
-    AVR_FEATURE_LPMX,
-    AVR_FEATURE_LPM,
+    LC3_FEATURE_SPM,
+    LC3_FEATURE_SPMX,
 
-    AVR_FEATURE_MOVW,
-    AVR_FEATURE_MUL,
-    AVR_FEATURE_RAMPD,
-    AVR_FEATURE_RAMPX,
-    AVR_FEATURE_RAMPY,
-    AVR_FEATURE_RAMPZ,
-} AVRFeature;
+    LC3_FEATURE_ELPMX,
+    LC3_FEATURE_ELPM,
+    LC3_FEATURE_LPMX,
+    LC3_FEATURE_LPM,
+
+    LC3_FEATURE_MOVW,
+    LC3_FEATURE_MUL,
+    LC3_FEATURE_RAMPD,
+    LC3_FEATURE_RAMPX,
+    LC3_FEATURE_RAMPY,
+    LC3_FEATURE_RAMPZ,
+} LC3Feature;
 
 typedef struct CPUArchState {
     uint32_t pc_w; /* 0x003fffff up to 22 bits */
 
-    uint32_t sregC; /* 0x00000001 1 bit */
-    uint32_t sregZ; /* 0x00000001 1 bit */
-    uint32_t sregN; /* 0x00000001 1 bit */
-    uint32_t sregV; /* 0x00000001 1 bit */
-    uint32_t sregS; /* 0x00000001 1 bit */
-    uint32_t sregH; /* 0x00000001 1 bit */
-    uint32_t sregT; /* 0x00000001 1 bit */
+    // uint32_t sregC; /* 0x00000001 1 bit */
+    // uint32_t sregZ; /* 0x00000001 1 bit */
+    // uint32_t sregN; /* 0x00000001 1 bit */
+    // uint32_t sregV; /* 0x00000001 1 bit */
+    // uint32_t sregS; /* 0x00000001 1 bit */
+    // uint32_t sregH; /* 0x00000001 1 bit */
+    // uint32_t sregT; /* 0x00000001 1 bit */
     uint32_t sregI; /* 0x00000001 1 bit */
 
-    uint32_t rampD; /* 0x00ff0000 8 bits */
-    uint32_t rampX; /* 0x00ff0000 8 bits */
-    uint32_t rampY; /* 0x00ff0000 8 bits */
-    uint32_t rampZ; /* 0x00ff0000 8 bits */
-    uint32_t eind; /* 0x00ff0000 8 bits */
+    // uint32_t rampD; /* 0x00ff0000 8 bits */
+    // uint32_t rampX; /* 0x00ff0000 8 bits */
+    // uint32_t rampY; /* 0x00ff0000 8 bits */
+    // uint32_t rampZ; /* 0x00ff0000 8 bits */
+    // uint32_t eind; /* 0x00ff0000 8 bits */
 
     uint32_t r[NUMBER_OF_CPU_REGISTERS]; /* 8 bits each */
     uint32_t sp; /* 16 bits */
@@ -135,11 +142,11 @@ typedef struct CPUArchState {
     bool fullacc; /* CPU/MEM if true MEM only otherwise */
 
     uint64_t features;
-} CPUAVRState;
+} CPULC3State;
 
 /**
  *  AVRCPU:
- *  @env: #CPUAVRState
+ *  @env: #CPULC3State
  *
  *  A AVR CPU.
  */
@@ -149,48 +156,48 @@ struct ArchCPU {
     /*< public >*/
 
     CPUNegativeOffsetState neg;
-    CPUAVRState env;
+    CPULC3State env;
 };
 
-extern const struct VMStateDescription vms_avr_cpu;
+extern const struct VMStateDescription vms_lc3_cpu;
 
-void avr_cpu_do_interrupt(CPUState *cpu);
-bool avr_cpu_exec_interrupt(CPUState *cpu, int int_req);
-hwaddr avr_cpu_get_phys_page_debug(CPUState *cpu, vaddr addr);
-int avr_cpu_gdb_read_register(CPUState *cpu, GByteArray *buf, int reg);
-int avr_cpu_gdb_write_register(CPUState *cpu, uint8_t *buf, int reg);
-int avr_print_insn(bfd_vma addr, disassemble_info *info);
-vaddr avr_cpu_gdb_adjust_breakpoint(CPUState *cpu, vaddr addr);
+void lc3_cpu_do_interrupt(CPUState *cpu);
+bool lc3_cpu_exec_interrupt(CPUState *cpu, int int_req);
+hwaddr lc3_cpu_get_phys_page_debug(CPUState *cpu, vaddr addr);
+int lc3_cpu_gdb_read_register(CPUState *cpu, GByteArray *buf, int reg);
+int lc3_cpu_gdb_write_register(CPUState *cpu, uint8_t *buf, int reg);
+int lc3_print_insn(bfd_vma addr, disassemble_info *info);
+vaddr lc3_cpu_gdb_adjust_breakpoint(CPUState *cpu, vaddr addr);
 
-static inline int avr_feature(CPUAVRState *env, AVRFeature feature)
+static inline int lc3_feature(CPULC3State *env, LC3Feature feature)
 {
     return (env->features & (1U << feature)) != 0;
 }
 
-static inline void set_avr_feature(CPUAVRState *env, int feature)
+static inline void set_lc3_feature(CPULC3State *env, int feature)
 {
-    env->features |= (1U << feature);
+    // env->features |= (1U << feature);
 }
 
-#define cpu_list avr_cpu_list
-#define cpu_mmu_index avr_cpu_mmu_index
+#define cpu_list lc3_cpu_list
+#define cpu_mmu_index lc3_cpu_mmu_index
 
-static inline int avr_cpu_mmu_index(CPUAVRState *env, bool ifetch)
+static inline int lc3_cpu_mmu_index(CPULC3State *env, bool ifetch)
 {
     return ifetch ? MMU_CODE_IDX : MMU_DATA_IDX;
 }
 
-void avr_cpu_tcg_init(void);
+void lc3_cpu_tcg_init(void);
 
-void avr_cpu_list(void);
-int cpu_avr_exec(CPUState *cpu);
+void lc3_cpu_list(void);
+// int cpu_avr_exec(CPUState *cpu);
 
 enum {
     TB_FLAGS_FULL_ACCESS = 1,
     TB_FLAGS_SKIP = 2,
 };
 
-static inline void cpu_get_tb_cpu_state(CPUAVRState *env, vaddr *pc,
+static inline void cpu_get_tb_cpu_state(CPULC3State *env, vaddr *pc,
                                         uint64_t *cs_base, uint32_t *pflags)
 {
     uint32_t flags = 0;
@@ -208,39 +215,39 @@ static inline void cpu_get_tb_cpu_state(CPUAVRState *env, vaddr *pc,
     *pflags = flags;
 }
 
-static inline int cpu_interrupts_enabled(CPUAVRState *env)
+static inline int cpu_interrupts_enabled(CPULC3State *env)
 {
     return env->sregI != 0;
 }
 
-static inline uint8_t cpu_get_sreg(CPUAVRState *env)
-{
-    return (env->sregC) << 0
-         | (env->sregZ) << 1
-         | (env->sregN) << 2
-         | (env->sregV) << 3
-         | (env->sregS) << 4
-         | (env->sregH) << 5
-         | (env->sregT) << 6
-         | (env->sregI) << 7;
-}
+// static inline uint8_t cpu_get_sreg(CPULC3State *env)
+// {
+//     return (env->sregC) << 0
+//          | (env->sregZ) << 1
+//          | (env->sregN) << 2
+//          | (env->sregV) << 3
+//          | (env->sregS) << 4
+//          | (env->sregH) << 5
+//          | (env->sregT) << 6
+//          | (env->sregI) << 7;
+// }
 
-static inline void cpu_set_sreg(CPUAVRState *env, uint8_t sreg)
-{
-    env->sregC = (sreg >> 0) & 0x01;
-    env->sregZ = (sreg >> 1) & 0x01;
-    env->sregN = (sreg >> 2) & 0x01;
-    env->sregV = (sreg >> 3) & 0x01;
-    env->sregS = (sreg >> 4) & 0x01;
-    env->sregH = (sreg >> 5) & 0x01;
-    env->sregT = (sreg >> 6) & 0x01;
-    env->sregI = (sreg >> 7) & 0x01;
-}
+// static inline void cpu_set_sreg(CPULC3State *env, uint8_t sreg)
+// {
+//     env->sregC = (sreg >> 0) & 0x01;
+//     env->sregZ = (sreg >> 1) & 0x01;
+//     env->sregN = (sreg >> 2) & 0x01;
+//     env->sregV = (sreg >> 3) & 0x01;
+//     env->sregS = (sreg >> 4) & 0x01;
+//     env->sregH = (sreg >> 5) & 0x01;
+//     env->sregT = (sreg >> 6) & 0x01;
+//     env->sregI = (sreg >> 7) & 0x01;
+// }
 
-bool avr_cpu_tlb_fill(CPUState *cs, vaddr address, int size,
+bool lc3_cpu_tlb_fill(CPUState *cs, vaddr address, int size,
                       MMUAccessType access_type, int mmu_idx,
                       bool probe, uintptr_t retaddr);
 
 #include "exec/cpu-all.h"
 
-#endif /* QEMU_AVR_CPU_H */
+#endif /* QEMU_LC3_CPU_H */
