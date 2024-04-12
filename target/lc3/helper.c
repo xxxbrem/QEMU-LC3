@@ -199,9 +199,33 @@ void helper_break(CPULC3State *env)
     cpu_loop_exit(cs);
 }
 
-void helper_wdr(CPULC3State *env)
+void helper_print_reg(CPULC3State *env)
 {
-    qemu_log_mask(LOG_UNIMP, "WDG reset (not implemented)\n");
+    printf("\n---------------------\n");
+    for (int i = 0; i < 10; i++) {
+        printf("r%d: %d\n", i, env->r[i]);
+    }
+    // printf("pc: %d\n", env->pc_w);
+    printf("---------------------\n");
+}
+
+void helper_print(uint32_t a)
+{
+    printf("word: %d\n", a);
+
+    // uint16_t c = 0;
+    // address_space_read(&address_space_memory, a, MEMTXATTRS_UNSPECIFIED, &c, 2);
+    // printf("addr1:%d\n", c);
+    // // uint16_t c = 0;
+    // address_space_read(&address_space_memory, a*2, MEMTXATTRS_UNSPECIFIED, &c, 2);
+    // printf("addr2:%d\n", c);
+}
+
+void helper_st(uint32_t SR, uint32_t addr)
+{
+    uint16_t num = (uint16_t)SR;
+    uint16_t *num_p = &num;
+    address_space_write(&address_space_memory, addr, MEMTXATTRS_UNSPECIFIED, num_p, 2);
 }
 
 /*
@@ -357,4 +381,139 @@ void helper_fullwr(CPULC3State *env, uint32_t data, uint32_t addr)
         address_space_stb(&address_space_memory, OFFSET_DATA + addr, data,
                           MEMTXATTRS_UNSPECIFIED, NULL);
     }
+}
+
+// target_ulong helper_sign_extend(CPULC3State *env, uint32_t x)
+// {
+//     int bit_count = 0;
+//     uint32_t y = x;
+//     while (y > 0) {
+//         y = y >> 1;
+//         bit_count += 1;
+//     }
+//     printf("%d %d\n", x, bit_count);
+//     if ((x >> (bit_count - 1)) & 1) {
+//         x |= (0xFFFF << bit_count);
+//     }
+//     return x & 0xFFFF;
+// }
+enum
+{
+    FL_POS = 1 << 0, /* P */
+    FL_ZRO = 1 << 1, /* Z */
+    FL_NEG = 1 << 2, /* N */
+};
+
+void helper_update_flags(CPULC3State *env, uint32_t r)
+{
+    if (r == 0)
+    {
+        env->r[9] = FL_ZRO;
+    }
+    else if (r >> 15) /* a 1 in the left-most bit indicates negative */
+    {
+        env->r[9] = FL_NEG;
+    }
+    else
+    {
+        env->r[9] = FL_POS;
+    }
+}
+
+void helper_PUTS(CPULC3State *env, uint32_t addr)
+{
+    /* one char per word */
+    uint16_t c = 0;
+    address_space_read(&address_space_memory, addr*2, MEMTXATTRS_UNSPECIFIED, &c, 2);
+    while (c)
+    {
+        putc((char)c, stdout);
+        addr++;
+        address_space_read(&address_space_memory, addr*2, MEMTXATTRS_UNSPECIFIED, &c, 2);
+    }
+    fflush(stdout);
+}
+
+void helper_PUTSP(CPULC3State *env, uint32_t addr)
+{
+    /* one char per word */
+    uint16_t c = 0;
+    address_space_read(&address_space_memory, addr*2, MEMTXATTRS_UNSPECIFIED, &c, 2);
+    while (c)
+    {
+        // char char1 = (*c) & 0xFF;
+        // putc(char1, stdout);
+        // char char2 = (*c) >> 8;
+        // if (char2) putc(char2, stdout);
+        // ++c;
+        char char1 = c & 0xFF;
+        putc(char1, stdout);
+        char char2 = c >> 8;
+        if (char2) putc(char2, stdout);
+        addr++;
+        address_space_read(&address_space_memory, addr*2, MEMTXATTRS_UNSPECIFIED, &c, 2);
+    }
+    fflush(stdout);
+}
+
+void helper_OUT(CPULC3State *env, uint32_t addr)
+{
+    putc((char)addr, stdout);
+    fflush(stdout);
+}
+
+void helper_GETC(CPULC3State *env)
+{
+    env->r[R_R0] = (uint16_t)getchar();
+    helper_update_flags(env, env->r[R_R0]);
+}
+
+void helper_IN(CPULC3State *env)
+{
+    printf("Enter a character: ");
+    char c = getchar();
+    putc(c, stdout);
+    fflush(stdout);
+    env->r[R_R0] = (uint16_t)c;
+    helper_update_flags(env, env->r[R_R0]);
+}
+
+void helper_HALT(CPULC3State *env)
+{
+    puts("HALT");
+    fflush(stdout);
+    exit(0);
+}
+
+void helper_key(CPULC3State *env, uint32_t addr)
+{
+    if (addr == MR_KBSR)
+    {
+        fd_set readfds;
+        FD_ZERO(&readfds);
+        FD_SET(STDIN_FILENO, &readfds);
+
+        struct timeval timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 0;
+        if (select(1, &readfds, NULL, NULL, &timeout) != 0)
+        {
+            // memory[MR_KBSR] = (1 << 15);
+            // memory[MR_KBDR] = getchar();
+            uint16_t arr = 1 << 15;
+            address_space_write(&address_space_memory, MR_KBSR*2, MEMTXATTRS_UNSPECIFIED, &arr, 2);
+            arr = getchar();
+            address_space_write(&address_space_memory, MR_KBDR*2, MEMTXATTRS_UNSPECIFIED, &arr, 2);
+        }
+        else
+        {
+            uint16_t arr[1] = {0};
+            address_space_write(&address_space_memory, MR_KBSR*2, MEMTXATTRS_UNSPECIFIED, arr, 2);
+        }
+    }
+}
+
+target_ulong helper_convert(uint32_t num)
+{
+    return num;
 }

@@ -218,10 +218,10 @@ static void lc3_realize(DeviceState *dev, Error **errp)
                            &error_abort);
     memory_region_add_subregion(get_system_memory(), 0x6000, &s->cpu_ram);
 
-    /* Flash */
-    memory_region_init_rom(&s->memory, OBJECT(dev),
-                           "memory", mc->memory_size, &error_fatal);
-    memory_region_add_subregion(get_system_memory(), 106496 - 0x6000, &s->memory);
+    // /* Flash */
+    // memory_region_init_ram(&s->memory, OBJECT(dev),
+    //                        "memory", mc->memory_size, &error_fatal);
+    // memory_region_add_subregion(get_system_memory(), 131072, &s->memory);
 }
 
 static Property lc3_props[] = {
@@ -247,7 +247,8 @@ static void lc32560_class_init(ObjectClass *oc, void *data)
     amc->cpu_type = LC3_CPU_TYPE_NAME("lc3");
     amc->memory_size = 256 * KiB;
     amc->eeprom_size = 4 * KiB;
-    amc->cpu_ram_size = 8 * KiB;
+    // amc->cpu_ram_size = 8 * KiB;
+    amc->cpu_ram_size = 1 << 17;
     amc->io_size = 512;
     amc->gpio_count = 54;
     amc->adc_count = 16;

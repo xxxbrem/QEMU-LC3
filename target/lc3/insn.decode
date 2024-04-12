@@ -10,7 +10,7 @@ NOT             1001 DR:3 SR:3 111111
 #
 # Branch Instructions
 #
-BR              0000 n:1 z:1 p:1 PCoffset9:9
+BR              0000 cond:3 PCoffset9:9
 JMP             1100 000 BaseR:3 000000
 JSR             0100 1 PCoffset11:11
 JSRR            0100 0 00 BaseR:3 000000
@@ -29,4 +29,9 @@ STR             0111 SR:3 BaseR:3 offset6:6
 
 # RET             1100 000 RET:3 000000
 RTI             1000 000000000000
-TRAP            1111 0000 trapvect8:8
+TRAP_GETC       1111 0000 00100000
+TRAP_OUT        1111 0000 00100001
+TRAP_PUTS       1111 0000 00100010
+TRAP_IN         1111 0000 00100011
+TRAP_PUTSP      1111 0000 00100100
+TRAP_HALT       1111 0000 00100101

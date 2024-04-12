@@ -47,7 +47,7 @@
 #define EXCP_INT(n) (EXCP_RESET + (n) + 1)
 
 /* Number of CPU registers */
-#define NUMBER_OF_CPU_REGISTERS 32
+#define NUMBER_OF_CPU_REGISTERS 10
 /* Number of IO registers accessible by ld/st/in/out */
 #define NUMBER_OF_IO_REGISTERS 64
 
@@ -74,9 +74,24 @@
 
 enum
 {
-    MR_KBSR = 0xFE000, /* keyboard status */
-    MR_KBDR = 0xFE020,  /* keyboard data */
+    MR_KBSR = 0xFE00, /* keyboard status */
+    MR_KBDR = 0xFE02,  /* keyboard data */
     KBSR_V = 65534,
+};
+
+enum
+{
+    R_R0 = 0,
+    R_R1,
+    R_R2,
+    R_R3,
+    R_R4,
+    R_R5,
+    R_R6,
+    R_R7,
+    R_PC, /* program counter */
+    R_COND,
+    R_COUNT
 };
 
 typedef enum LC3Feature {

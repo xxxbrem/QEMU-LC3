@@ -18,7 +18,11 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>
  */
 
-DEF_HELPER_1(wdr, void, env)
+DEF_HELPER_1(print_reg, void, env)
+DEF_HELPER_1(print, void, i32)
+DEF_HELPER_1(convert, tl, i32)
+DEF_HELPER_2(st, void, i32, i32)
+DEF_HELPER_2(key, void, env, i32)
 DEF_HELPER_1(debug, noreturn, env)
 DEF_HELPER_1(break, noreturn, env)
 DEF_HELPER_1(sleep, noreturn, env)
@@ -27,3 +31,10 @@ DEF_HELPER_3(outb, void, env, i32, i32)
 DEF_HELPER_2(inb, tl, env, i32)
 DEF_HELPER_3(fullwr, void, env, i32, i32)
 DEF_HELPER_2(fullrd, tl, env, i32)
+DEF_HELPER_2(update_flags, void, env, i32)
+DEF_HELPER_2(PUTS, void, env, i32)
+DEF_HELPER_2(PUTSP, void, env, i32)
+DEF_HELPER_2(OUT, void, env, i32)
+DEF_HELPER_1(GETC, void, env)
+DEF_HELPER_1(IN, void, env)
+DEF_HELPER_1(HALT, void, env)

@@ -47,9 +47,15 @@ bool lc3_load_firmware(LC3CPU *cpu, MachineState *ms,
     fclose(file);
 
     address_space_write(&address_space_memory, 0, MEMTXATTRS_UNSPECIFIED, memory, sizeof(memory));
-    uint16_t a = 1;
-    address_space_read(&address_space_memory, 0x3000*2, MEMTXATTRS_UNSPECIFIED, &a, 2);
-    printf("%hu\n", a);
+    // uint16_t a = 1;
+    // address_space_read(&address_space_memory, 0x3000*2, MEMTXATTRS_UNSPECIFIED, &a, 2);
+    // printf("%hu\n", a);
+    // uint16_t arr = (1 << 15);
+    // address_space_write(&address_space_memory, MR_KBSR*2, MEMTXATTRS_UNSPECIFIED, &arr, 2);
+    // address_space_read(&address_space_memory, MR_KBSR*2, MEMTXATTRS_UNSPECIFIED, &a, 2);
+    // printf("a:%d\n", a);
+    // address_space_read(&address_space_memory, MR_KBDR*2, MEMTXATTRS_UNSPECIFIED, &a, 2);
+    // printf("a:%d\n", a);
 
     return true;
 }

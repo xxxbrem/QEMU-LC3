@@ -80,7 +80,7 @@ static void lc3_cpu_reset_hold(Object *obj)
         mcc->parent_phases.hold(obj);
     }
 
-    env->pc_w = 0;
+    env->pc_w = 0x3000;
     env->sregI = 1;
     env->sp = 0;
 
@@ -155,12 +155,12 @@ static ObjectClass *lc3_cpu_class_by_name(const char *cpu_model)
 
 static void lc3_cpu_dump_state(CPUState *cs, FILE *f, int flags)
 {
-    // LC3CPU *cpu = LC3_CPU(cs);
-    // CPULC3State *env = &cpu->env;
-    // int i;
+    LC3CPU *cpu = LC3_CPU(cs);
+    CPULC3State *env = &cpu->env;
+    int i;
 
-    // qemu_fprintf(f, "\n");
-    // qemu_fprintf(f, "PC:    %06x\n", env->pc_w * 2); /* PC points to words */
+    qemu_fprintf(f, "\n");
+    qemu_fprintf(f, "PC:    %06x\n", env->pc_w * 2); /* PC points to words */
     // qemu_fprintf(f, "SP:      %04x\n", env->sp);
     // qemu_fprintf(f, "rampD:     %02x\n", env->rampD >> 16);
     // qemu_fprintf(f, "rampX:     %02x\n", env->rampX >> 16);
@@ -182,13 +182,13 @@ static void lc3_cpu_dump_state(CPUState *cs, FILE *f, int flags)
     // qemu_fprintf(f, "SKIP:    %02x\n", env->skip);
 
     // qemu_fprintf(f, "\n");
-    // for (i = 0; i < ARRAY_SIZE(env->r); i++) {
-    //     qemu_fprintf(f, "R[%02d]:  %02x   ", i, env->r[i]);
+    for (i = 0; i < ARRAY_SIZE(env->r); i++) {
+        qemu_fprintf(f, "R[%02d]:  %02x   ", i, env->r[i]);
 
-    //     if ((i % 8) == 7) {
-    //         qemu_fprintf(f, "\n");
-    //     }
-    // }
+        if ((i % 8) == 7) {
+            qemu_fprintf(f, "\n");
+        }
+    }
     qemu_fprintf(f, "\n");
 }
 
