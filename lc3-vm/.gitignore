@@ -1,0 +1,8 @@
+*.sym
+*.out
+*.obj
+*.exe
+*.dSYM
+
+lc3
+lc3-alt

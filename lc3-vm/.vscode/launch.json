@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run LC3 with 2048.obj",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/docs/src/lc3",
+      "args": ["/root/repo/lc3-vm/docs/supplies/2048.obj"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+    }
+  ]
+}
